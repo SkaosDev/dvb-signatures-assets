@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Signature DVB</title>
+
+<style>
+  /* ─── Aptos (self-hosted sur le repo GitHub) ─────────────────── */
+  @font-face {
+    font-family: 'Aptos';
+    font-style: normal;
+    font-weight: 300;
+    font-display: swap;
+    src: url('https://raw.githubusercontent.com/SkaosDev/dvb-signatures-assets/main/aptos/Aptos-Light.ttf') format('truetype');
+  }
+  @font-face {
+    font-family: 'Aptos';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('https://raw.githubusercontent.com/SkaosDev/dvb-signatures-assets/main/aptos/Aptos.ttf') format('truetype');
+  }
+  @font-face {
+    font-family: 'Aptos';
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url('https://raw.githubusercontent.com/SkaosDev/dvb-signatures-assets/main/aptos/Aptos-SemiBold.ttf') format('truetype');
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+    font-size: 16px;
+    color: #111;
+    background: #fff;
+    line-height: 1.5;
+  }
+
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 48px 24px 64px;
+  }
+
+  section { margin-bottom: 32px; }
+  section h2 {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #666;
+    margin: 0 0 12px;
+  }
+
+  .field { margin-bottom: 16px; }
+  .field label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 6px;
+  }
+  .field input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 15px;
+    font-family: inherit;
+    outline: none;
+  }
+  .field input:focus {
+    border-color: #0232FF;
+    box-shadow: 0 0 0 3px rgba(2, 50, 255, 0.15);
+  }
+
+  .preview {
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 24px;
+    background: #fafafa;
+    overflow-x: auto;
+  }
+
+  .actions { margin-top: 16px; }
+  button {
+    padding: 10px 16px;
+    font-size: 14px;
+    font-family: inherit;
+    font-weight: 500;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid #0232FF;
+    background: #0232FF;
+    color: #fff;
+  }
+  button:hover { background: #0126cc; }
+
+  ol.steps { padding-left: 20px; margin: 0; }
+  ol.steps li { margin-bottom: 8px; color: #333; }
+  ol.steps code {
+    background: #f2f2f2;
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 13px;
+  }
+
+  /* Toast — complètement hors écran quand pas affiché */
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: 0;
+    transform: translate(-50%, 150%);
+    background: #111;
+    color: #fff;
+    padding: 10px 18px;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: transform 0.25s ease;
+    z-index: 100;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  .toast.show {
+    transform: translate(-50%, -24px);
+  }
+</style>
+</head>
+
+<body>
+<div class="container">
+
+  <section>
+    <h2>Infos</h2>
+    <div class="field">
+      <label for="firstName">Prénom</label>
+      <input type="text" id="firstName" placeholder="Prénom" autocomplete="given-name">
+    </div>
+    <div class="field">
+      <label for="lastName">Nom</label>
+      <input type="text" id="lastName" placeholder="NOM" autocomplete="family-name">
+    </div>
+    <div class="field">
+      <label for="position">Rôle</label>
+      <input type="text" id="position" placeholder="Rôle" autocomplete="organization-title">
+    </div>
+  </section>
+
+  <section>
+    <h2>Aperçu</h2>
+    <div class="preview" id="preview"></div>
+    <div class="actions">
+      <button id="copyBtn">Copier la signature</button>
+    </div>
+  </section>
+
+  <section>
+    <h2>Comment l'utiliser</h2>
+    <ol class="steps">
+      <li>Remplis tes infos ci-dessus.</li>
+      <li>Clique sur <strong>Copier la signature</strong>.</li>
+      <li>Dans Outlook : <code>Paramètres → Compte → Signatures → Nouvelle signature</code>.</li>
+      <li>Colle avec <code>Ctrl/Cmd + V</code>, puis enregistre.</li>
+    </ol>
+  </section>
+
+</div>
+
+<div class="toast" id="toast">Signature copiée</div>
+
+<script>
+  const ASSETS = 'https://raw.githubusercontent.com/SkaosDev/dvb-signatures-assets/main';
+  const DEFAULTS = { firstName: 'Prénom', lastName: 'NOM', position: 'Rôle' };
+
+  const esc = s => String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+
+  function buildSignature({ firstName, lastName, position }) {
+    const fn = esc(firstName || DEFAULTS.firstName);
+    const ln = esc(lastName  || DEFAULTS.lastName);
+    const po = esc(position  || DEFAULTS.position);
+
+    return `<table cellpadding="0" cellspacing="0" border="0" style="font-family:Aptos, Calibri, Arial, sans-serif; border-collapse:collapse;">
+  <tr>
+    <td valign="middle" style="padding-right:30px;">
+      <img src="${ASSETS}/davincibot-logo.png" alt="DaVinciBot" width="120" style="display:block; border:0; width:120px; height:auto;">
+    </td>
+    <td valign="middle" style="padding-left:30px; border-left:1px solid #000000;">
+      <div style="font-family:Aptos, Calibri, Arial, sans-serif; color:#0232FF; font-size:18px; font-weight:600; letter-spacing:0.5px; white-space:nowrap;">${fn} ${ln}</div>
+      <div style="font-family:Aptos, Calibri, Arial, sans-serif; color:#000000; font-size:14px; font-weight:300; margin-top:0px; letter-spacing:0.5px; white-space:nowrap;">${po}</div>
+      <div style="font-family:Aptos, Calibri, Arial, sans-serif; color:#000000; font-size:14px; font-weight:400; margin-top:6px; letter-spacing:0.5px; white-space:nowrap;">ESILV Paris - La Défense</div>
+      <div style="margin-top:3px; white-space:nowrap;">
+        <a href="https://linkedin.com/company/davincibot" style="text-decoration:none; display:inline-block; margin-right:4px;"><img src="${ASSETS}/icon-linkedin.png" alt="LinkedIn" width="24" height="24" style="display:inline-block; border:0; width:24px; height:24px;"></a>
+        <a href="mailto:davincibot@devinci.fr" style="text-decoration:none; display:inline-block; margin-right:4px;"><img src="${ASSETS}/icon-email.png" alt="Email" width="24" height="24" style="display:inline-block; border:0; width:24px; height:24px;"></a>
+        <a href="https://www.instagram.com/davincibot_pulv/" style="text-decoration:none; display:inline-block; margin-right:4px;"><img src="${ASSETS}/icon-instagram.png" alt="Instagram" width="24" height="24" style="display:inline-block; border:0; width:24px; height:24px;"></a>
+        <a href="https://davincibot.fr" style="text-decoration:none; display:inline-block;"><img src="${ASSETS}/icon-website.png" alt="Site web" width="24" height="24" style="display:inline-block; border:0; width:24px; height:24px;"></a>
+      </div>
+    </td>
+  </tr>
+</table>`;
+  }
+
+  const $fn = document.getElementById('firstName');
+  const $ln = document.getElementById('lastName');
+  const $po = document.getElementById('position');
+  const $preview = document.getElementById('preview');
+  const $toast = document.getElementById('toast');
+
+  const readState = () => ({
+    firstName: $fn.value.trim(),
+    lastName:  $ln.value.trim(),
+    position:  $po.value.trim()
+  });
+
+  const render = () => { $preview.innerHTML = buildSignature(readState()); };
+  [$fn, $ln, $po].forEach(el => el.addEventListener('input', render));
+  render();
+
+  function showToast(msg) {
+    $toast.textContent = msg;
+    $toast.classList.add('show');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => $toast.classList.remove('show'), 2000);
+  }
+
+  async function copyRich() {
+    const html = buildSignature(readState());
+    const s = readState();
+    const plain = `${s.firstName || DEFAULTS.firstName} ${s.lastName || DEFAULTS.lastName}\n${s.position || DEFAULTS.position}\nESILV Paris - La Défense\nhttps://davincibot.fr`;
+
+    if (navigator.clipboard && window.ClipboardItem) {
+      try {
+        await navigator.clipboard.write([new ClipboardItem({
+          'text/html':  new Blob([html],  { type: 'text/html' }),
+          'text/plain': new Blob([plain], { type: 'text/plain' })
+        })]);
+        return true;
+      } catch (e) {}
+    }
+    try {
+      const range = document.createRange();
+      range.selectNodeContents($preview);
+      const sel = window.getSelection();
+      sel.removeAllRanges(); sel.addRange(range);
+      const ok = document.execCommand('copy');
+      sel.removeAllRanges();
+      return ok;
+    } catch { return false; }
+  }
+
+  document.getElementById('copyBtn').addEventListener('click', async () => {
+    showToast(await copyRich() ? 'Signature copiée' : 'Échec de la copie');
+  });
+</script>
+</body>
+</html>
