@@ -151,6 +151,14 @@
       <label for="linkedin">LinkedIn (URL)</label>
       <input type="url" id="linkedin" placeholder="https://linkedin.com/in/votre-profil" autocomplete="url">
     </div>
+    <div class="field">
+      <label for="school">École</label>
+      <input type="text" id="school" value="ESILV Paris - La Défense" placeholder="ESILV Paris - La Défense">
+    </div>
+    <div class="field">
+      <label for="phone">Téléphone (optionnel)</label>
+      <input type="tel" id="phone" placeholder="+33 6 12 34 56 78" autocomplete="tel">
+    </div>
   </section>
 
   <section>
@@ -177,17 +185,29 @@
 
 <script>
   const ASSETS = 'https://raw.githubusercontent.com/SkaosDev/dvb-signatures-assets/main';
-  const DEFAULTS = { firstName: 'Prénom', lastName: 'NOM', position: 'Rôle', linkedin: 'https://linkedin.com/company/davincibot' };
+  const DEFAULTS = { firstName: 'Prénom', lastName: 'NOM', position: 'Rôle', linkedin: 'https://linkedin.com/company/davincibot', school: 'ESILV Paris - La Défense' };
 
   const esc = s => String(s)
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
     .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 
-  function buildSignature({ firstName, lastName, position, linkedin }) {
+  const isValidPhone = s => {
+    if (!s) return false;
+    const digits = s.replace(/[\s().\-]/g, '');
+    return /^\+?\d{8,15}$/.test(digits);
+  };
+  const telHref = s => s.replace(/[\s().\-]/g, '');
+
+  function buildSignature({ firstName, lastName, position, linkedin, school, phone }) {
     const fn = esc(firstName || DEFAULTS.firstName);
     const ln = esc(lastName  || DEFAULTS.lastName);
     const po = esc(position  || DEFAULTS.position);
     const li = esc(linkedin  || DEFAULTS.linkedin);
+    const sc = esc(school    || DEFAULTS.school);
+    const phoneValid = isValidPhone(phone);
+    const phoneBlock = phoneValid
+      ? `<a href="tel:${esc(telHref(phone))}" title="${esc(phone)}" style="text-decoration:none; display:inline-block; margin-right:4px;"><img src="${ASSETS}/icon-phone.png" alt="${esc(phone)}" width="24" height="24" style="display:inline-block; border:0; width:24px; height:24px;"></a> `
+      : '';
 
     return `<table cellpadding="0" cellspacing="0" border="0" style="font-family:Aptos, Calibri, Arial, sans-serif; border-collapse:collapse;">
   <tr>
@@ -197,9 +217,9 @@
     <td valign="middle" style="padding-left:30px; border-left:1px solid #000000;">
       <div style="font-family:Aptos, Calibri, Arial, sans-serif; font-size:18px; font-weight:600; letter-spacing:0.5px; white-space:nowrap;"><a href="${li}" style="color:#0232FF; text-decoration:none;">${fn} ${ln}</a></div>
       <div style="font-family:Aptos, Calibri, Arial, sans-serif; color:#000000; font-size:14px; font-weight:300; margin-top:0px; letter-spacing:0.5px; white-space:nowrap;">${po}</div>
-      <div style="font-family:Aptos, Calibri, Arial, sans-serif; color:#000000; font-size:14px; font-weight:400; margin-top:6px; letter-spacing:0.5px; white-space:nowrap;">ESILV Paris - La Défense</div>
+      <div style="font-family:Aptos, Calibri, Arial, sans-serif; color:#000000; font-size:14px; font-weight:400; margin-top:6px; letter-spacing:0.5px; white-space:nowrap;">${sc}</div>
       <div style="margin-top:3px; white-space:nowrap;">
-        <a href="https://linkedin.com/company/davincibot" style="text-decoration:none; display:inline-block; margin-right:4px;"><img src="${ASSETS}/icon-linkedin.png" alt="LinkedIn" width="24" height="24" style="display:inline-block; border:0; width:24px; height:24px;"></a>
+        ${phoneBlock}<a href="https://linkedin.com/company/davincibot" style="text-decoration:none; display:inline-block; margin-right:4px;"><img src="${ASSETS}/icon-linkedin.png" alt="LinkedIn" width="24" height="24" style="display:inline-block; border:0; width:24px; height:24px;"></a>
         <a href="mailto:davincibot@devinci.fr" style="text-decoration:none; display:inline-block; margin-right:4px;"><img src="${ASSETS}/icon-email.png" alt="Email" width="24" height="24" style="display:inline-block; border:0; width:24px; height:24px;"></a>
         <a href="https://www.instagram.com/davincibot_pulv/" style="text-decoration:none; display:inline-block; margin-right:4px;"><img src="${ASSETS}/icon-instagram.png" alt="Instagram" width="24" height="24" style="display:inline-block; border:0; width:24px; height:24px;"></a>
         <a href="https://davincibot.fr" style="text-decoration:none; display:inline-block;"><img src="${ASSETS}/icon-website.png" alt="Site web" width="24" height="24" style="display:inline-block; border:0; width:24px; height:24px;"></a>
@@ -213,6 +233,8 @@
   const $ln = document.getElementById('lastName');
   const $po = document.getElementById('position');
   const $li = document.getElementById('linkedin');
+  const $sc = document.getElementById('school');
+  const $ph = document.getElementById('phone');
   const $preview = document.getElementById('preview');
   const $toast = document.getElementById('toast');
 
@@ -220,11 +242,13 @@
     firstName: $fn.value.trim(),
     lastName:  $ln.value.trim(),
     position:  $po.value.trim(),
-    linkedin:  $li.value.trim()
+    linkedin:  $li.value.trim(),
+    school:    $sc.value.trim(),
+    phone:     $ph.value.trim()
   });
 
   const render = () => { $preview.innerHTML = buildSignature(readState()); };
-  [$fn, $ln, $po, $li].forEach(el => el.addEventListener('input', render));
+  [$fn, $ln, $po, $li, $sc, $ph].forEach(el => el.addEventListener('input', render));
   render();
 
   function showToast(msg) {
@@ -237,7 +261,7 @@
   async function copyRich() {
     const html = buildSignature(readState());
     const s = readState();
-    const plain = `${s.firstName || DEFAULTS.firstName} ${s.lastName || DEFAULTS.lastName}\n${s.position || DEFAULTS.position}\nESILV Paris - La Défense\nhttps://davincibot.fr`;
+    const plain = `${s.firstName || DEFAULTS.firstName} ${s.lastName || DEFAULTS.lastName}\n${s.position || DEFAULTS.position}\n${s.school || DEFAULTS.school}${isValidPhone(s.phone) ? `\n${s.phone}` : ''}\nhttps://davincibot.fr`;
 
     if (navigator.clipboard && window.ClipboardItem) {
       try {
