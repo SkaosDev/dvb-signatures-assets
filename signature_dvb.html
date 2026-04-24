@@ -206,8 +206,7 @@
     const sc = esc(school    || DEFAULTS.school);
     const phoneValid = isValidPhone(phone);
     const phoneBlock = phoneValid
-      ? `<a href="tel:${esc(telHref(phone))}" title="${esc(phone)}" style="text-decoration:none; display:inline-block; margin-right:4px;"><img src="${ASSETS}/icon-phone.png" alt="${esc(phone)}" width="24" height="24" style="display:inline-block; border:0; width:24px; height:24px;"></a>
-      ` 
+      ? `<div style="font-family:Aptos, Calibri, Arial, sans-serif; color:#000000; font-size:14px; font-weight:400; margin-top:-2px; letter-spacing:0.5px; white-space:nowrap;">${esc(phone)}</div>`
       : '';
 
     return `<table cellpadding="0" cellspacing="0" border="0" style="font-family:Aptos, Calibri, Arial, sans-serif; border-collapse:collapse;">
@@ -218,9 +217,10 @@
     <td valign="middle" style="padding-left:30px; border-left:1px solid #000000;">
       <div style="font-family:Aptos, Calibri, Arial, sans-serif; font-size:18px; font-weight:600; letter-spacing:0.5px; white-space:nowrap;"><a href="${li}" style="color:#0232FF; text-decoration:none;">${fn} ${ln}</a></div>
       <div style="font-family:Aptos, Calibri, Arial, sans-serif; color:#000000; font-size:14px; font-weight:300; margin-top:0px; letter-spacing:0.5px; white-space:nowrap;">${po}</div>
+      ${phoneBlock}
       <div style="font-family:Aptos, Calibri, Arial, sans-serif; color:#000000; font-size:14px; font-weight:400; margin-top:6px; letter-spacing:0.5px; white-space:nowrap;">${sc}</div>
       <div style="margin-top:3px; white-space:nowrap;">
-        ${phoneBlock}<a href="https://linkedin.com/company/davincibot" style="text-decoration:none; display:inline-block; margin-right:4px;"><img src="${ASSETS}/icon-linkedin.png" alt="LinkedIn" width="24" height="24" style="display:inline-block; border:0; width:24px; height:24px;"></a>
+        <a href="https://linkedin.com/company/davincibot" style="text-decoration:none; display:inline-block; margin-right:4px;"><img src="${ASSETS}/icon-linkedin.png" alt="LinkedIn" width="24" height="24" style="display:inline-block; border:0; width:24px; height:24px;"></a>
         <a href="mailto:davincibot@devinci.fr" style="text-decoration:none; display:inline-block; margin-right:4px;"><img src="${ASSETS}/icon-email.png" alt="Email" width="24" height="24" style="display:inline-block; border:0; width:24px; height:24px;"></a>
         <a href="https://www.instagram.com/davincibot_pulv/" style="text-decoration:none; display:inline-block; margin-right:4px;"><img src="${ASSETS}/icon-instagram.png" alt="Instagram" width="24" height="24" style="display:inline-block; border:0; width:24px; height:24px;"></a>
         <a href="https://davincibot.fr" style="text-decoration:none; display:inline-block;"><img src="${ASSETS}/icon-website.png" alt="Site web" width="24" height="24" style="display:inline-block; border:0; width:24px; height:24px;"></a>
