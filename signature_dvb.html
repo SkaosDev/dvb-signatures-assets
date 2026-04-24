@@ -206,7 +206,8 @@
     const sc = esc(school    || DEFAULTS.school);
     const phoneValid = isValidPhone(phone);
     const phoneBlock = phoneValid
-      ? `<a href="tel:${esc(telHref(phone))}" title="${esc(phone)}" style="text-decoration:none; display:inline-block; margin-right:4px;"><img src="${ASSETS}/icon-phone.png" alt="${esc(phone)}" width="24" height="24" style="display:inline-block; border:0; width:24px; height:24px;"></a> `
+      ? `<a href="tel:${esc(telHref(phone))}" title="${esc(phone)}" style="text-decoration:none; display:inline-block; margin-right:4px;"><img src="${ASSETS}/icon-phone.png" alt="${esc(phone)}" width="24" height="24" style="display:inline-block; border:0; width:24px; height:24px;"></a>
+      ` 
       : '';
 
     return `<table cellpadding="0" cellspacing="0" border="0" style="font-family:Aptos, Calibri, Arial, sans-serif; border-collapse:collapse;">
