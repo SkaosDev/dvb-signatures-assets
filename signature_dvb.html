@@ -147,6 +147,10 @@
       <label for="position">Rôle</label>
       <input type="text" id="position" placeholder="Rôle" autocomplete="organization-title">
     </div>
+    <div class="field">
+      <label for="linkedin">LinkedIn (URL)</label>
+      <input type="url" id="linkedin" placeholder="https://linkedin.com/in/votre-profil" autocomplete="url">
+    </div>
   </section>
 
   <section>
@@ -173,16 +177,17 @@
 
 <script>
   const ASSETS = 'https://raw.githubusercontent.com/SkaosDev/dvb-signatures-assets/main';
-  const DEFAULTS = { firstName: 'Prénom', lastName: 'NOM', position: 'Rôle' };
+  const DEFAULTS = { firstName: 'Prénom', lastName: 'NOM', position: 'Rôle', linkedin: 'https://linkedin.com/company/davincibot' };
 
   const esc = s => String(s)
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
     .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 
-  function buildSignature({ firstName, lastName, position }) {
+  function buildSignature({ firstName, lastName, position, linkedin }) {
     const fn = esc(firstName || DEFAULTS.firstName);
     const ln = esc(lastName  || DEFAULTS.lastName);
     const po = esc(position  || DEFAULTS.position);
+    const li = esc(linkedin  || DEFAULTS.linkedin);
 
     return `<table cellpadding="0" cellspacing="0" border="0" style="font-family:Aptos, Calibri, Arial, sans-serif; border-collapse:collapse;">
   <tr>
@@ -190,7 +195,7 @@
       <img src="${ASSETS}/davincibot-logo.png" alt="DaVinciBot" width="120" style="display:block; border:0; width:120px; height:auto;">
     </td>
     <td valign="middle" style="padding-left:30px; border-left:1px solid #000000;">
-      <div style="font-family:Aptos, Calibri, Arial, sans-serif; color:#0232FF; font-size:18px; font-weight:600; letter-spacing:0.5px; white-space:nowrap;">${fn} ${ln}</div>
+      <div style="font-family:Aptos, Calibri, Arial, sans-serif; font-size:18px; font-weight:600; letter-spacing:0.5px; white-space:nowrap;"><a href="${li}" style="color:#0232FF; text-decoration:none;">${fn} ${ln}</a></div>
       <div style="font-family:Aptos, Calibri, Arial, sans-serif; color:#000000; font-size:14px; font-weight:300; margin-top:0px; letter-spacing:0.5px; white-space:nowrap;">${po}</div>
       <div style="font-family:Aptos, Calibri, Arial, sans-serif; color:#000000; font-size:14px; font-weight:400; margin-top:6px; letter-spacing:0.5px; white-space:nowrap;">ESILV Paris - La Défense</div>
       <div style="margin-top:3px; white-space:nowrap;">
@@ -207,17 +212,19 @@
   const $fn = document.getElementById('firstName');
   const $ln = document.getElementById('lastName');
   const $po = document.getElementById('position');
+  const $li = document.getElementById('linkedin');
   const $preview = document.getElementById('preview');
   const $toast = document.getElementById('toast');
 
   const readState = () => ({
     firstName: $fn.value.trim(),
     lastName:  $ln.value.trim(),
-    position:  $po.value.trim()
+    position:  $po.value.trim(),
+    linkedin:  $li.value.trim()
   });
 
   const render = () => { $preview.innerHTML = buildSignature(readState()); };
-  [$fn, $ln, $po].forEach(el => el.addEventListener('input', render));
+  [$fn, $ln, $po, $li].forEach(el => el.addEventListener('input', render));
   render();
 
   function showToast(msg) {
